@@ -22,5 +22,6 @@
 
  #### para conectarme a la base de datos use el siguiente comando para utilizar a docker
  #### docker run --name taskflow_db -e POSTGRES_PASSWORD=password123 -e POSTGRES_DB=taskflow -p 5432:5432 -d postgres
- #### se levanta o ejecuta el backend en la ruta taskflow-app/taskflow-app/backend y usando npm start
+ #### se levanta en local o ejecuta el backend en la ruta taskflow-app/taskflow-app/backend y usando npm start
+ #### se levanta en local o ejecuta el backend en la ruta taskflow-app/taskflow-app/frontend y usando npm start
  
