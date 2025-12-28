@@ -24,4 +24,15 @@
  #### docker run --name taskflow_db -e POSTGRES_PASSWORD=password123 -e POSTGRES_DB=taskflow -p 5432:5432 -d postgres
  #### se levanta en local o ejecuta el backend en la ruta taskflow-app/taskflow-app/backend y usando npm start
  #### se levanta en local o ejecuta el backend en la ruta taskflow-app/taskflow-app/frontend y usando npm start
+
+
+ #### al configurar docker use estos comandos
+  #### sudo docker compose down
+  #### sudo docker rmi taskflow-app-frontend
+  #### sudo docker compose exec frontend cat /etc/nginx/conf.d/default.conf
+  #### sudo docker logs taskflow_frontend
+  #### sudo docker compose up -d --build *este levanta el proyecto*
+
+  #### la nueva ruta es http://localhost:8080/login
+  
  
