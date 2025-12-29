@@ -24,9 +24,11 @@
 FROM node:20 AS frontend-build
 WORKDIR /app/frontend
 
-# Intentamos copiar usando un patrón que busca la carpeta frontend esté donde esté
+# Buscamos el package.json del frontend en cualquier subcarpeta
 COPY **/frontend/package*.json ./
-RUN npm install
+RUN npm install --include=dev
+
+# Copiamos el resto del código del frontend
 COPY **/frontend/ ./
 RUN npm run build
 
@@ -34,15 +36,19 @@ RUN npm run build
 FROM node:20
 WORKDIR /app
 
-# Aquí está el truco: buscamos el package.json del backend ignorando la carpeta frontend
-# Esto copiará el package.json que está en la raíz del proyecto backend
-COPY package*.json ./
+# --- CAMBIO CLAVE PARA EL BACKEND ---
+# Copiamos el package.json del backend. 
+# Si el anterior falló, este lo buscará específicamente en la subcarpeta
+COPY **/taskflow-app/package*.json ./
+# Si el anterior falla, intentamos con la raíz por si acaso
+COPY package*.json ./ 
+
 RUN npm install
 
-# Copiamos todo el contenido
+# Copiamos todo el código
 COPY . .
 
-# Traemos el build del frontend a la carpeta build del backend
+# Traemos el build del frontend
 COPY --from=frontend-build /app/frontend/build ./build 
 
 EXPOSE 3001
