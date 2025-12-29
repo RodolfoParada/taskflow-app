@@ -24,11 +24,9 @@
 FROM node:18 AS frontend-build
 WORKDIR /app/frontend
 
-# Copiamos los archivos de dependencia usando la ruta del repositorio
+# Usamos rutas relativas al contexto (.)
 COPY taskflow-app/frontend/package*.json ./
 RUN npm install
-
-# Copiamos el resto del código del frontend
 COPY taskflow-app/frontend/ ./
 RUN npm run build
 
@@ -36,18 +34,21 @@ RUN npm run build
 FROM node:18
 WORKDIR /app
 
-# Copiamos las dependencias del backend
+# --- PASO CRÍTICO ---
+# Intentamos copiar el package.json del backend. 
+# Si el package.json está directamente en taskflow-app/, esta es la ruta:
 COPY taskflow-app/package*.json ./
+
+# Si por casualidad el package.json del backend está dentro de taskflow-app/backend/, 
+# deberías cambiar la línea anterior a: COPY taskflow-app/backend/package*.json ./
+
 RUN npm install
 
-# Copiamos todo el código del backend (que está en taskflow-app)
+# Copiamos todo el contenido de la carpeta taskflow-app al directorio actual /app
 COPY taskflow-app/ ./
 
-# Traemos el build que se generó en la etapa 1
-# Verifica que tu backend esté configurado para servir la carpeta 'build'
+# Traemos el build del frontend
 COPY --from=frontend-build /app/frontend/build ./build 
 
 EXPOSE 3001
-
-# Comando para arrancar la aplicación
 CMD ["node", "app.js"]
