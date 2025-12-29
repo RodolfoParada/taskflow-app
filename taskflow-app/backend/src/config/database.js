@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+// const { Sequelize } = require('sequelize');
 
 // DEFINIMOS LA URL DIRECTAMENTE (Hardcoded)
 // Nota: Usa tus credenciales reales de Postgres aquí
