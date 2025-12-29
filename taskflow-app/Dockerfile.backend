@@ -1,13 +1,33 @@
+# FROM node:18-alpine
+# WORKDIR /app
+
+# # 1. Copiamos los archivos de dependencias usando la ruta completa desde la raíz
+# COPY taskflow-app/taskflow-app/backend/package*.json ./
+
+# RUN npm install
+
+# # 2. Copiamos todo el contenido de la carpeta backend
+# COPY taskflow-app/taskflow-app/backend/ .
+
+# EXPOSE 3001
+# CMD ["npm", "start"]
+
+
+
+
 FROM node:18-alpine
 WORKDIR /app
 
-# 1. Copiamos los archivos de dependencias usando la ruta completa desde la raíz
-COPY taskflow-app/taskflow-app/backend/package*.json ./
+# 1. Como el contexto es 'taskflow-app/taskflow-app', 
+# solo tenemos que entrar a 'backend' directamente.
+COPY backend/package*.json ./
 
 RUN npm install
 
-# 2. Copiamos todo el contenido de la carpeta backend
-COPY taskflow-app/taskflow-app/backend/ .
+# 2. Copiamos el contenido de la carpeta backend al WORKDIR (/app)
+COPY backend/ .
 
 EXPOSE 3001
+
+# Asegúrate de tener el script "start" en tu package.json
 CMD ["npm", "start"]
