@@ -23,31 +23,25 @@
 // );
 
 // module.exports = sequelize;
+
 const { Sequelize } = require('sequelize');
 
-// Validamos que la URL exista y sea un string
 const dbUrl = process.env.DATABASE_URL;
 
-const sequelize = (dbUrl && process.env.NODE_ENV === 'production')
-  ? new Sequelize(dbUrl, {
-      dialect: 'postgres',
-      dialectOptions: {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
-        }
-      },
-      logging: false
-    })
-  : new Sequelize(
-      process.env.DB_NAME || 'taskflow',
-      process.env.DB_USER || 'postgres',
-      process.env.DB_PASSWORD || 'password123',
-      {
-        host: process.env.DB_HOST || 'localhost',
-        dialect: 'postgres',
-        logging: false
-      }
-    );
+// Imprimimos un mensaje de diagnóstico al inicio (solo para debug)
+if (!dbUrl) {
+  console.error("⚠️ ERROR: La variable DATABASE_URL está vacía en Render.");
+}
+
+const sequelize = new Sequelize(dbUrl, {
+  dialect: 'postgres',
+  logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  }
+});
 
 module.exports = sequelize;
