@@ -1,7 +1,13 @@
-FROM node:18
+FROM node:18-alpine
 WORKDIR /app
-COPY package*.json ./
+
+# 1. Copiamos los archivos de dependencias desde la ruta larga 📂
+COPY taskflow-app/taskflow-app/backend/package*.json ./
+
 RUN npm install
-COPY . .
+
+# 2. Copiamos el resto del código del backend 💻
+COPY taskflow-app/taskflow-app/backend/ ./
+
 EXPOSE 3001
 CMD ["npm", "start"]
