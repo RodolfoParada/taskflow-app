@@ -1,14 +1,13 @@
 FROM node:18-alpine
 WORKDIR /app
 
-# Copiamos desde la carpeta backend que está en el mismo nivel que este Dockerfile
-COPY backend/package*.json ./
+# 1. Copiamos los archivos de dependencias usando la ruta completa desde la raíz
+COPY taskflow-app/taskflow-app/backend/package*.json ./
 
 RUN npm install
 
-# Copiamos el resto del código de la carpeta backend
-COPY backend/ .
+# 2. Copiamos todo el contenido de la carpeta backend
+COPY taskflow-app/taskflow-app/backend/ .
 
 EXPOSE 3001
-# Asegúrate de que en tu package.json exista el script "start"
 CMD ["npm", "start"]
