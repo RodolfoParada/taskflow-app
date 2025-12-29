@@ -34,13 +34,31 @@
 
 
 
+# FROM node:18-alpine
+# WORKDIR /app
+
+# # Copiamos los archivos de la carpeta donde esté el Dockerfile
+# COPY package*.json ./
+# RUN npm install
+# COPY . .
+# RUN ls -la && npm install
+
+# EXPOSE 3001
+# CMD ["npm", "start"]
+
+
+
 FROM node:18-alpine
 WORKDIR /app
 
-# Copiamos los archivos de la carpeta donde esté el Dockerfile
-COPY package*.json ./
+# Copiamos desde la carpeta backend que está en el mismo nivel que este Dockerfile
+COPY backend/package*.json ./
+
 RUN npm install
-COPY . .
+
+# Copiamos el resto del código de la carpeta backend
+COPY backend/ .
 
 EXPOSE 3001
+# Asegúrate de que en tu package.json exista el script "start"
 CMD ["npm", "start"]
