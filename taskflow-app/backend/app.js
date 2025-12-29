@@ -21,6 +21,15 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+const path = require('path');
+// Servir archivos estáticos
+app.use(express.static(path.join(__dirname, 'build'))); 
+
+// Redirigir todo lo demás al index.html de React
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
 // Tus rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);

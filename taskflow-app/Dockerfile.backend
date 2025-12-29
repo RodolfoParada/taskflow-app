@@ -1,137 +1,39 @@
-# FROM node:18-alpine
-# WORKDIR /app
-
-# # 1. Copiamos los archivos de dependencias usando la ruta completa desde la raíz
-# COPY taskflow-app/taskflow-app/backend/package*.json ./
-
-# RUN npm install
-
-# # 2. Copiamos todo el contenido de la carpeta backend
-# COPY taskflow-app/taskflow-app/backend/ .
-
-# EXPOSE 3001
-# CMD ["npm", "start"]
-
-
 
 
 # FROM node:18-alpine
 # WORKDIR /app
 
-# # 1. Como el contexto es 'taskflow-app/taskflow-app', 
-# # solo tenemos que entrar a 'backend' directamente.
+# # 1. Docker ya está en 'taskflow-app', así que 'backend' está justo ahí.
+# # NO pongas /taskflow-app/backend
 # COPY backend/package*.json ./
 
 # RUN npm install
 
-# # 2. Copiamos el contenido de la carpeta backend al WORKDIR (/app)
+# # 2. Copiamos el contenido de la carpeta backend al contenedor
 # COPY backend/ .
 
-# EXPOSE 3001
-
-# # Asegúrate de tener el script "start" en tu package.json
-# CMD ["npm", "start"]
-
-
-
-# FROM node:18-alpine
-# WORKDIR /app
-
-# # Copiamos los archivos de la carpeta donde esté el Dockerfile
-# COPY package*.json ./
-# RUN npm install
-# COPY . .
-# RUN ls -la && npm install
-
-# EXPOSE 3001
-# CMD ["npm", "start"]
-
-
-
-# FROM node:18-alpine
-# WORKDIR /app
-
-# # Copiamos desde la carpeta backend que está en el mismo nivel que este Dockerfile
-# COPY backend/package*.json ./
-
-# RUN npm install
-
-# # Copiamos el resto del código de la carpeta backend
-# COPY backend/ .
-
-# EXPOSE 3001
-# # Asegúrate de que en tu package.json exista el script "start"
-# CMD ["npm", "start"]
-
-
-
-# FROM node:18-alpine
-# WORKDIR /app
-
-# # 1. Copiamos el package.json usando la ruta que TÚ me confirmaste
-# # Si falla aquí, es porque el nombre de la carpeta no es exacto
-# COPY taskflow-app/taskflow-app/backend/package*.json ./
-
-# RUN npm install
-
-# # 2. Copiamos todo el contenido de esa subcarpeta
-# COPY taskflow-app/taskflow-app/backend/ .
-
-# EXPOSE 3001
-# CMD ["npm", "start"]
-
-
-
-# FROM node:18-alpine
-# WORKDIR /app
-
-# # Copiamos los archivos de dependencias desde la ruta profunda
-# # Nota: No usamos la barra "/" al principio
-# COPY taskflow-app/taskflow-app/backend/package*.json ./
-
-# RUN npm install
-
-# # Copiamos el resto del código del backend
-# COPY taskflow-app/taskflow-app/backend/ .
-
-# # Verificamos qué se copió (ayuda a depurar si falla el inicio)
+# # Verificación de seguridad para ver qué archivos se copiaron
 # RUN ls -la
 
 # EXPOSE 3001
 # CMD ["npm", "start"]
 
-
-
-# FROM node:18-alpine
-# WORKDIR /app
-
-# # 1. Ahora Docker verá la carpeta 'backend' directamente
-# COPY backend/package*.json ./
-# RUN npm install
-
-# # 2. Copiamos el contenido de la carpeta backend
-# COPY backend/ .
-
-# EXPOSE 3001
-# # Importante: Asegúrate que en backend/package.json tengas el script "start"
-# CMD ["npm", "start"]
-
-
-
-FROM node:18-alpine
-WORKDIR /app
-
-# 1. Docker ya está en 'taskflow-app', así que 'backend' está justo ahí.
-# NO pongas /taskflow-app/backend
-COPY backend/package*.json ./
-
+# 1. Construir el Frontend
+FROM node:18 AS frontend-build
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
 RUN npm install
+COPY frontend/ ./
+RUN npm run build
 
-# 2. Copiamos el contenido de la carpeta backend al contenedor
-COPY backend/ .
-
-# Verificación de seguridad para ver qué archivos se copiaron
-RUN ls -la
+# 2. Configurar el Backend y unir todo
+FROM node:18
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+# Copiamos el build del frontend al lugar donde el backend lo busca
+COPY --from=frontend-build /app/frontend/build ./build 
 
 EXPOSE 3001
-CMD ["npm", "start"]
+CMD ["node", "app.js"]
