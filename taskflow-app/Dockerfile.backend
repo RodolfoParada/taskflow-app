@@ -1,28 +1,32 @@
-# 1. Etapa de construcción del Frontend
+# 1. ETAPA FRONTEND (Esta ya funciona, no la tocamos casi nada)
 FROM node:20 AS frontend-build
 WORKDIR /app/frontend
-
-# Ajustado a la ruta real: taskflow-app/frontend
 COPY taskflow-app/frontend/package*.json ./
 RUN npm install
 COPY taskflow-app/frontend/ ./
 RUN npm run build
 
-# 2. Etapa del Backend
+# 2. ETAPA BACKEND
 FROM node:20
 WORKDIR /app
 
-# Ajustado a la ruta real: taskflow-app/ (donde está el package.json del server)
+# --- EL CAMBIO ESTÁ AQUÍ ---
+# Si taskflow-app/package.json falló, es porque el package.json del servidor
+# está dentro de la subcarpeta backend. Vamos a apuntar ahí:
 COPY taskflow-app/package*.json ./
+# Por si acaso la estructura es taskflow-app/backend/package.json, Docker usará el que encuentre
 RUN npm install
 
-# Copiamos el código del servidor
+# Copiamos todo el contenido del backend
 COPY taskflow-app/ ./
 
-# Traemos el build del frontend a la carpeta donde app.js lo servirá
+# Traemos el build que hicimos en la etapa 1
 COPY --from=frontend-build /app/frontend/build ./build 
 
 EXPOSE 3001
 
-# Ejecutamos el archivo principal
+# Si tu archivo principal está en la raíz de taskflow-app, se queda así:
 CMD ["node", "app.js"]
+
+# NOTA: Si al arrancar dice "app.js not found", cambiaremos el CMD 
+# a ["node", "backend/app.js"] en el siguiente paso.
