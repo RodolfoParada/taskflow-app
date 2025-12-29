@@ -40,28 +40,34 @@
 # EXPOSE 3001
 # CMD ["node", "app.js"]
 
-# 1. Construcción del Frontend
+# 1. Etapa de construcción del Frontend
 FROM node:18 AS frontend-build
 WORKDIR /app/frontend
-# Ajustamos la ruta al contexto de la raíz
+
+# Copiamos desde la carpeta taskflow-app que está en la raíz
 COPY taskflow-app/frontend/package*.json ./
 RUN npm install
+
+# Copiamos todo el contenido del frontend
 COPY taskflow-app/frontend/ ./
 RUN npm run build
 
-# 2. Configuración del Backend
+# 2. Etapa del Backend
 FROM node:18
 WORKDIR /app
 
-# Copiamos el package.json del backend desde la carpeta correcta
+# Copiamos los archivos del backend (están dentro de taskflow-app)
 COPY taskflow-app/package*.json ./
 RUN npm install
 
-# Copiamos todo el contenido de la carpeta de la app
-COPY taskflow-app/ .
+# Copiamos todo el código del backend
+COPY taskflow-app/ ./
 
-# Movemos el build del frontend a donde el backend lo sirve
+# Traemos la carpeta 'build' generada en la etapa anterior 
+# al directorio raíz del backend
 COPY --from=frontend-build /app/frontend/build ./build 
 
 EXPOSE 3001
+
+# Comando para iniciar la aplicación
 CMD ["node", "app.js"]

@@ -1,68 +1,62 @@
 const express = require('express');
 const cors = require('cors');
-// 1. IMPORTA SEQUELIZE DESDE TU CONFIGURACIÓN
+const path = require('path');
 const sequelize = require('./src/config/database'); 
-// 2. IMPORTA TUS MODELOS (Necesario para que el seed funcione)
 const { User } = require('./src/models'); 
 const bcrypt = require('bcryptjs');
 const authRoutes = require('./src/routes/authRoutes');
 const projectRoutes = require('./src/routes/projectRoutes');
-const path = require('path');
 
 const app = express();
 
-// 2. Configuras las opciones
+// 1. Configuraciones de seguridad y límites (Siempre al principio)
 const corsOptions = {
   origin: process.env.FRONTEND_URL || 'http://localhost:8080',
   optionsSuccessStatus: 200
 };
-
-
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-const path = require('path');
-// Servir archivos estáticos
-app.use(express.static(path.join(__dirname, 'build'))); 
-
-// Redirigir todo lo demás al index.html de React
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
-// Tus rutas
+// 2. Rutas de la API (Deben ir ANTES de servir el frontend)
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-// Aumenta el límite antes de las rutas
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
-// --- FUNCIÓN SEED (La que creamos antes) ---
+
+// 3. Servir archivos estáticos del Frontend (Solo en producción)
+// Esto asume que el build está en la raíz de la carpeta de ejecución
+app.use(express.static(path.join(__dirname, 'build'))); 
+
+// 4. El "comodín" para React (DEBE ser la última ruta de todas)
+app.get('*', (req, res) => {
+  // Verificamos si existe el archivo antes de enviarlo para evitar errores en el log
+  const indexPath = path.join(__dirname, 'build', 'index.html');
+  res.sendFile(indexPath);
+});
+
+// --- FUNCIÓN SEED ---
 const seedUser = async () => {
   try {
-    // Borramos para limpiar intentos fallidos anteriores
     await User.destroy({ where: { email: 'admin@taskflow.com' } });
-
-    // NO USAMOS bcrypt.hash aquí, dejamos que el MODELO lo haga
     await User.create({
       nombre: 'admin',
       email: 'admin@taskflow.com',
-      password: 'password123' // El modelo la encriptará automáticamente
+      password: 'password123'
     });
-    
-    console.log('✅ Usuario administrador RE-CREADO correctamente: admin@taskflow.com / password123');
+    console.log('✅ Usuario administrador configurado');
   } catch (error) {
     console.error('❌ Error en seed:', error.message);
   }
 };
 
-// --- SINCRONIZACIÓN Y ARRANQUE ---
-// Aquí usamos la variable 'sequelize' que importamos arriba
+// --- ARRANQUE ---
+const PORT = process.env.PORT || 3001;
+
 sequelize.sync().then(() => {
   seedUser(); 
-  app.listen(3001, () => {
-    console.log('🚀 Servidor corriendo en http://localhost:3001');
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
   });
 }).catch(err => {
-  console.error('❌ No se pudo conectar a la base de datos:', err);
+  console.error('❌ Error de conexión:', err);
 });
