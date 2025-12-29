@@ -1,14 +1,14 @@
 FROM node:18-alpine
 WORKDIR /app
 
-# 1. Ya estamos dentro de la carpeta nivel 2, 
-# así que buscamos directamente 'backend'
+# Copiamos desde la carpeta backend que está en el mismo nivel que este Dockerfile
 COPY backend/package*.json ./
 
 RUN npm install
 
-# 2. Copiamos el contenido de la subcarpeta backend al WORKDIR
+# Copiamos el resto del código de la carpeta backend
 COPY backend/ .
 
 EXPOSE 3001
-CMD ["npm", "run", "dev"]
+# Asegúrate de que en tu package.json exista el script "start"
+CMD ["npm", "start"]
