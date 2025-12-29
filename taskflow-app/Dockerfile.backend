@@ -20,26 +20,26 @@
 
 
 
-# 1. Etapa de construcción del Frontend
+# 1. Construcción del Frontend
 FROM node:20 AS frontend-build
 WORKDIR /app/frontend
 
-# Como el contexto es 'taskflow-app', empezamos desde la carpeta interna
-COPY taskflow-app/frontend/package*.json ./
+# Ahora las rutas son directas porque ya estamos dentro de taskflow-app/taskflow-app
+COPY frontend/package*.json ./
 RUN npm install
-COPY taskflow-app/frontend/ ./
+COPY frontend/ ./
 RUN npm run build
 
-# 2. Etapa del Backend
+# 2. Configuración del Backend
 FROM node:20
 WORKDIR /app
 
-# Copiamos el package.json que está en taskflow-app/package.json
-COPY taskflow-app/package*.json ./
+# El package.json del backend está aquí mismo
+COPY package*.json ./
 RUN npm install
 
-# Copiamos todo el contenido de la carpeta interna taskflow-app
-COPY taskflow-app/ ./
+# Copiamos el código del backend
+COPY . .
 
 # Traemos el build del frontend
 COPY --from=frontend-build /app/frontend/build ./build 
