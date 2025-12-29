@@ -2,28 +2,27 @@
 FROM node:20 AS frontend-build
 WORKDIR /app/frontend
 
-# Accedemos a la ruta completa: carpeta/carpeta/frontend
-COPY taskflow-app/taskflow-app/frontend/package*.json ./
+# Ajustado a la ruta real: taskflow-app/frontend
+COPY taskflow-app/frontend/package*.json ./
 RUN npm install
-COPY taskflow-app/taskflow-app/frontend/ ./
+COPY taskflow-app/frontend/ ./
 RUN npm run build
 
 # 2. Etapa del Backend
 FROM node:20
 WORKDIR /app
 
-# Accedemos a la ruta completa: carpeta/carpeta/backend
-# (Si el package.json está dentro de 'backend', ajusta la ruta abajo)
-COPY taskflow-app/taskflow-app/package*.json ./
+# Ajustado a la ruta real: taskflow-app/ (donde está el package.json del server)
+COPY taskflow-app/package*.json ./
 RUN npm install
 
 # Copiamos el código del servidor
-COPY taskflow-app/taskflow-app/ ./
+COPY taskflow-app/ ./
 
 # Traemos el build del frontend a la carpeta donde app.js lo servirá
 COPY --from=frontend-build /app/frontend/build ./build 
 
 EXPOSE 3001
 
-# Asegúrate de que app.js esté en la raíz de taskflow-app/taskflow-app/
+# Ejecutamos el archivo principal
 CMD ["node", "app.js"]
