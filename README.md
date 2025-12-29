@@ -34,5 +34,13 @@
   #### sudo docker compose up -d --build *este levanta el proyecto*
 
   #### la nueva ruta es http://localhost:8080/login
+
+
+  #### se hizo deploy en render.con
+  #### enlace de la vista en render https://taskflow-app-h5lr.onrender.com/login
+
+
   
+  #### usuario: admin@taskflow.com
+  #### contraseña: password123
  
