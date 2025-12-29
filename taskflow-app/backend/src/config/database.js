@@ -26,22 +26,21 @@
 
 const { Sequelize } = require('sequelize');
 
-const dbUrl = process.env.DATABASE_URL;
-
-// Imprimimos un mensaje de diagnóstico al inicio (solo para debug)
-if (!dbUrl) {
-  console.error("⚠️ ERROR: La variable DATABASE_URL está vacía en Render.");
-}
-
-const sequelize = new Sequelize(dbUrl, {
-  dialect: 'postgres',
-  logging: false,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  }
-});
+// Si existe la variable en Render, la usa. Si no, usa local.
+const sequelize = process.env.DATABASE_URL 
+  ? new Sequelize(process.env.DATABASE_URL, {
+      dialect: 'postgres',
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false // Esto es obligatorio para Render
+        }
+      },
+      logging: false
+    })
+  : new Sequelize('taskflow', 'postgres', 'password123', {
+      host: 'localhost',
+      dialect: 'postgres'
+    });
 
 module.exports = sequelize;
