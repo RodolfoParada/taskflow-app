@@ -24,21 +24,21 @@ const { Sequelize } = require('sequelize');
 
 // module.exports = sequelize;
 
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require('sequelize'); // Solo una vez al principio
 
-// Si existe DATABASE_URL (en Render), la usa. Si no, usa el modo local.
+// Configuración de la conexión
 const sequelize = process.env.DATABASE_URL 
   ? new Sequelize(process.env.DATABASE_URL, {
       dialect: 'postgres',
       dialectOptions: {
         ssl: {
           require: true,
-          rejectUnauthorized: false // Necesario para conexiones seguras en Render
+          rejectUnauthorized: false
         }
       }
     })
-  : new Sequelize('taskflow', 'user', 'password', {
-      host: 'localhost',
+  : new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+      host: process.env.DB_HOST,
       dialect: 'postgres'
     });
 
