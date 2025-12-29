@@ -121,17 +121,16 @@
 FROM node:18-alpine
 WORKDIR /app
 
-# 1. Copiamos el package.json entrando a la carpeta real
-# NOTA: Solo usamos una vez 'taskflow-app' porque en GitHub
-# solo hay un nivel de carpeta con ese nombre antes de 'backend'
-COPY taskflow-app/backend/package*.json ./
+# 1. Docker ya está en 'taskflow-app', así que 'backend' está justo ahí.
+# NO pongas /taskflow-app/backend
+COPY backend/package*.json ./
 
 RUN npm install
 
-# 2. Copiamos el código del backend
-COPY taskflow-app/backend/ .
+# 2. Copiamos el contenido de la carpeta backend al contenedor
+COPY backend/ .
 
-# Verificamos qué archivos hay para estar seguros
+# Verificación de seguridad para ver qué archivos se copiaron
 RUN ls -la
 
 EXPOSE 3001
