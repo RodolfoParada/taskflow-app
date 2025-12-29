@@ -1,16 +1,11 @@
 FROM node:18-alpine
-
 WORKDIR /app
 
-# 1. Indicamos la ruta completa desde la raíz del repo
-COPY taskflow-app/backend/package*.json ./
-
+# Como el contexto es la carpeta nivel 2, 
+# solo tenemos que entrar a 'backend/'
+COPY backend/package*.json ./
 RUN npm install
-
-# 2. Copiamos el resto del código del backend
-COPY taskflow-app/backend/ .
+COPY backend/ .
 
 EXPOSE 3001
-
-# 3. Verificamos el comando de inicio
 CMD ["npm", "run", "dev"]
