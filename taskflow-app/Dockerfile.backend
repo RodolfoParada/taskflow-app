@@ -1,29 +1,8 @@
-
-
-# FROM node:18-alpine
-# WORKDIR /app
-
-# # 1. Docker ya está en 'taskflow-app', así que 'backend' está justo ahí.
-# # NO pongas /taskflow-app/backend
-# COPY backend/package*.json ./
-
-# RUN npm install
-
-# # 2. Copiamos el contenido de la carpeta backend al contenedor
-# COPY backend/ .
-
-# # Verificación de seguridad para ver qué archivos se copiaron
-# RUN ls -la
-
-# EXPOSE 3001
-# CMD ["npm", "start"]
-
-
 # 1. Etapa de construcción del Frontend
 FROM node:20 AS frontend-build
 WORKDIR /app/frontend
 
-# Navegamos por la estructura doble
+# Accedemos a la ruta completa: carpeta/carpeta/frontend
 COPY taskflow-app/taskflow-app/frontend/package*.json ./
 RUN npm install
 COPY taskflow-app/taskflow-app/frontend/ ./
@@ -33,15 +12,18 @@ RUN npm run build
 FROM node:20
 WORKDIR /app
 
-# Navegamos a la carpeta del backend
+# Accedemos a la ruta completa: carpeta/carpeta/backend
+# (Si el package.json está dentro de 'backend', ajusta la ruta abajo)
 COPY taskflow-app/taskflow-app/package*.json ./
 RUN npm install
 
-# Copiamos todo el contenido del proyecto
+# Copiamos el código del servidor
 COPY taskflow-app/taskflow-app/ ./
 
-# Traemos el build del frontend a la carpeta del backend
+# Traemos el build del frontend a la carpeta donde app.js lo servirá
 COPY --from=frontend-build /app/frontend/build ./build 
 
 EXPOSE 3001
+
+# Asegúrate de que app.js esté en la raíz de taskflow-app/taskflow-app/
 CMD ["node", "app.js"]
