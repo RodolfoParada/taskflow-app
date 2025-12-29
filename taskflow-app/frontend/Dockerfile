@@ -3,11 +3,12 @@ FROM node:18-alpine as build-stage
 
 WORKDIR /app
 
-# Copiamos los archivos de dependencias
-COPY package*.json ./
+COPY frontend/package*.json ./
 
-# Instalamos las librerías
 RUN npm install
+
+# 2. Copiamos todo el contenido de la carpeta frontend
+COPY frontend/ .
 
 # --- AQUÍ AGREGAMOS LAS VARIABLES DE RENDER ---
 ARG REACT_APP_API_URL
