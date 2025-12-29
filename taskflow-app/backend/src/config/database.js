@@ -26,13 +26,14 @@
 
 const { Sequelize } = require('sequelize');
 
-let sequelize;
-
-// Verificamos si la URL existe y es un string válido
-if (process.env.DATABASE_URL && typeof process.env.DATABASE_URL === 'string' && process.env.DATABASE_URL.includes('://')) {
-  console.log('✅ Conectando mediante DATABASE_URL...');
-  sequelize = new Sequelize(process.env.DATABASE_URL, {
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
     dialect: 'postgres',
+    port: 5432,
     dialectOptions: {
       ssl: {
         require: true,
@@ -40,26 +41,12 @@ if (process.env.DATABASE_URL && typeof process.env.DATABASE_URL === 'string' && 
       }
     },
     logging: false
-  });
-} else {
-  // Si la URL falla, usamos los datos por separado (Más seguro)
-  console.log('⚠️ DATABASE_URL no válida. Usando parámetros individuales...');
-  sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
-    {
-      host: process.env.DB_HOST,
-      dialect: 'postgres',
-      dialectOptions: {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
-        }
-      },
-      logging: false
-    }
-  );
-}
+  }
+);
+
+// Esto imprimirá en la consola de Render si la conexión fue exitosa
+sequelize.authenticate()
+  .then(() => console.log('🚀 ¡Conexión exitosa a la base de datos!'))
+  .catch(err => console.error('❌ Error de conexión:', err));
 
 module.exports = sequelize;
