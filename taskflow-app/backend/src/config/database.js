@@ -26,21 +26,40 @@
 
 const { Sequelize } = require('sequelize');
 
-// Si existe la variable en Render, la usa. Si no, usa local.
-const sequelize = process.env.DATABASE_URL 
-  ? new Sequelize(process.env.DATABASE_URL, {
+let sequelize;
+
+// Verificamos si la URL existe y es un string válido
+if (process.env.DATABASE_URL && typeof process.env.DATABASE_URL === 'string' && process.env.DATABASE_URL.includes('://')) {
+  console.log('✅ Conectando mediante DATABASE_URL...');
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    },
+    logging: false
+  });
+} else {
+  // Si la URL falla, usamos los datos por separado (Más seguro)
+  console.log('⚠️ DATABASE_URL no válida. Usando parámetros individuales...');
+  sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
+    {
+      host: process.env.DB_HOST,
       dialect: 'postgres',
       dialectOptions: {
         ssl: {
           require: true,
-          rejectUnauthorized: false // Esto es obligatorio para Render
+          rejectUnauthorized: false
         }
       },
       logging: false
-    })
-  : new Sequelize('taskflow', 'postgres', 'password123', {
-      host: 'localhost',
-      dialect: 'postgres'
-    });
+    }
+  );
+}
 
 module.exports = sequelize;
